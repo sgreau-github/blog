@@ -15,15 +15,15 @@ export class PostListItemComponent implements OnInit {
   ngOnInit() {
   }
 
-  private isLoveIts() {
+  isLoveIts() {
     return this.post.loveIts > 0;
   }
 
-  private onLoveIt() {
+  onLoveIt() {
     this.post.loveIts++
   }
 
-  private onDoNotLoveIt() {
+  onDoNotLoveIt() {
     this.post.loveIts--
   }
 

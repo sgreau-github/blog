@@ -9,19 +9,4 @@ import { Post } from './model/post'
 export class AppComponent {
   title = 'my-blog';
 
-  posts : Post[] = [ 
-    {
-      title: 'first post',
-      content: 'Hello, this is the content of the first post',
-      loveIts: 0,
-      created_at: new Date('12/02/2019')
-    },
-    {
-      title: 'second post',
-      content: 'Content of the second post',
-      loveIts: 1,
-      created_at: new Date('12/02/2019 23:47')
-    }
-  ];
-
 }

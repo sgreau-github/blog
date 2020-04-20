@@ -9,7 +9,8 @@ import { PostService } from '../services/post.service';
 })
 export class PostListItemComponent implements OnInit {
 
-  @Input() post : Post
+  @Input() post: Post
+  @Input() idx: number;
 
   constructor(private postService: PostService) { }
 
@@ -22,10 +23,12 @@ export class PostListItemComponent implements OnInit {
 
   onLoveIt() {
     this.post.loveIts++
+    this.postService.UpdateLoveItPost(this.idx, this.post.loveIts);
   }
 
   onDoNotLoveIt() {
     this.post.loveIts--
+    this.postService.UpdateLoveItPost(this.idx, this.post.loveIts);
   }
 
   onRemove(post: Post) {

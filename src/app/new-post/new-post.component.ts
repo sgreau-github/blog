@@ -12,6 +12,7 @@ import { Router } from '@angular/router';
 export class NewPostComponent implements OnInit {
 
   postForm: FormGroup;
+  errorMessage: string;
 
   constructor(private formBuilder: FormBuilder,
               private postService: PostService,
@@ -31,7 +32,13 @@ export class NewPostComponent implements OnInit {
   onSavePost() {
     const title = this.postForm.get('title').value;
     const content = this.postForm.get('content').value;
-    this.postService.AddPosts(new Post(title, content));
-    this.router.navigate(['/posts']);
+    this.postService.addPosts(new Post(title, content)).then(
+      () => {
+        this.router.navigate(['/posts']);
+      },
+      (error) => {
+        this.errorMessage = error.message;
+      }
+    );
   }
 }

@@ -1,6 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Post } from '../model/post';
 import { Subject } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { promise } from 'protractor';
+import { rejects } from 'assert';
 
 @Injectable({
   providedIn: 'root'
@@ -8,50 +11,85 @@ import { Subject } from 'rxjs';
 export class PostService {
 
   private posts : Post[];
+  private serverUrl = 'https://http-client-demo-ef379.firebaseio.com/posts.json';
   postsSubject = new Subject<Post[]>();
 
-  constructor() {
-   this.posts = [
-      {
-        title: 'first post',
-        content: 'Hello, this is the content of the first post',
-        loveIts: 0,
-        created_at: new Date('12/02/2019')
-      },
-      {
-        title: 'second post',
-        content: 'Content of the second post',
-        loveIts: 1,
-        created_at: new Date('12/02/2019 23:47')
-      },
-      {
-        title: 'Third post',
-        content: 'Content of the third post',
-        loveIts: 1,
-        created_at: new Date('04/19/2020 23:47')
-      }
-    ];
+  constructor(private httpClient: HttpClient) {
   }
 
-  emitPosts() {
+  getPosts() {
+    this.getPostsFromServer();
+  }
+
+  addPosts(post: Post) {
+    this.posts.push(post);
+    // return new Promise(
+    //   (resolve, reject) => {
+    //     this.savePostsToServer().then(
+    //       () => {
+    //         console.log('Enregistrement terminé');
+    //         this.emitPosts();
+    //         resolve();
+    //       },
+    //       (error) => {
+    //         console.log('Erreur de sauvegarde ! ' + error.message);
+    //         reject(error);
+    //       }
+    //     )
+    //   }
+    // );
+    return this.savePostsToServer();
+  }
+
+  removePost(post: Post) {
+    const idx = this.posts.indexOf(post);
+    if (idx > 0) {
+      this.posts.splice(idx, 1);
+      this.savePostsToServer();
+    }
+  }
+
+  updateLoveItPost(idxPost: number, loveIts: number) {
+    this.posts[idxPost].loveIts = loveIts;
+    this.savePostsToServer();
+  }
+
+  private emitPosts() {
     this.postsSubject.next(this.posts.slice());
   }
 
-  AddPosts(post: Post) {
-    this.posts.push(post);
-    this.emitPosts();
+  private savePostsToServer() {
+    // this.httpClient.put(this.serverUrl, this.posts).subscribe(
+    //   () => {
+    //     console.log('Enregistrement terminé');
+    //   },
+    //   (error) => {
+    //     console.log('Erreur de sauvegarde ! ' + error);
+    //   }
+    // );
+    return this.httpClient.put(this.serverUrl, this.posts).toPromise().then(
+      () => {
+        console.log('Enregistrement terminé');
+        this.emitPosts();
+      },
+      (error) => {
+        console.log('Erreur de sauvegarde ! ' + error.message);
+      }
+    );
   }
 
-  RemovePost(post: Post) {
-    const idx = this.posts.indexOf(post);
-    if (idx > 0)
-      this.posts.splice(idx, 1);
-    this.emitPosts();
-  }
-
-  UpdateLoveItPost(idxPost: number, loveIts: number) {
-    this.posts[idxPost].loveIts = loveIts;
-    this.emitPosts();
+  private getPostsFromServer() {
+    this.httpClient.get<Post[]>(this.serverUrl)
+    .subscribe(
+      (response) => {
+        if (response != null)
+          this.posts = response;
+        this.emitPosts();
+      },
+      (error) => {
+        console.log('Erreur de chargement ! ' + error);
+      }
+    );
   }
 
 }
